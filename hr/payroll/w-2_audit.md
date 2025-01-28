@@ -1,17 +1,14 @@
 # W-2 Notes and Reports
 These can be run and fixed throughout the year to make the W-2 process smoother in January
 
-
-
 ## Historical Issues and Resolutions
-
 - Negative Amounts in Box 12?
 - PERDTOT year not matching PHRHIST year - Watch for PHRHIST_EVENT_DATE mismatch with the payroll year/month
 
 ### PERDTOT year not matching PHRHIST year
 Watch for PHRHIST_EVENT_DATE mismatch with the payroll year/month
-We found that PERDTOT had records for 2023 that were on PHRDEDN 2022 SA 11 with a 01/25/23 event/post date. Argos Report off by $92.77 - ended up being a phrhist_event_date in 2023 for a 2022 SA 11 supplemental
-Because the discrepancy report is an inner join, it was not returning the records because phrhist records didn't exist for 2023. Need to make it a full outer join.
+Argos Report off by $92.77. We found that PERDTOT had records for 2023 that were on PHRDEDN 2022 SA 11 with a 01/25/23 event/post date. (The phrhist_event_date was in 2023 for a 2022 SA 11 supplemental payroll.)
+When the discrepancy report was an inner join, it was not returning the records because phrhist records didn't exist for 2023. Made it a full outer join.
 
 ```sql
 -- 2024-01-03 UPDATE TO A FULL OUTER JOIN FOR WHEN RECORDS DONT EXIST ON ONE TABLE FOR THE YEAR
