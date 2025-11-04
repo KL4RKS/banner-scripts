@@ -7,6 +7,7 @@ Identify high earners whose pre-tax contributions exceed IRS limits. Move excess
 The report is **not** intended to prevent excess contributions in total, such as Roth plus Pre-tax contributions. I highly recommend using Banner's combined limit rule code setup for that (not required for this report to work). You are welcome to alter the report to watch for excess total contributions if you desire.
 
 ## **Initial Setup**
+- Bring the [Secure 2.0 High Earners Exceeding Pretax Allowed SQL report](secure2HighEarnerExceedingPretaxAllowable.sql)\* into your reporting tool. Ideally you'll have someone review the code to understand what it's doing, and make any necessary adjustments.
 - Update the report with correct deduction codes in the appropriate CTE (Pre/Post-Tax Main/457b).
 - Ensure Other CTEs have needed records (such as the correct values and years in **Limits and Wages**)
 
@@ -25,7 +26,7 @@ The report is **not** intended to prevent excess contributions in total, such as
 - [ ] Confirm high-wage earner status (IRS threshold: \$145,000 prior-year compensation).
 - [ ] Verify both pre-tax and post-tax deductions are set up.
 - [ ] Run **PHPCALCJ** after each payroll cycle.
-- [ ] Execute the [Secure 2.0 High Earners Exceeding Pretax Allowed SQL report](secure2HighEarnerExceedingPretaxAllowable.sql)\* and review flagged employees.
+- [ ] Execute the **Secure 2.0 High Earners Exceeding Pretax Allowed SQL report** and review flagged employees.
 - [ ] Move excess contributions from the **pre-tax** to the **post-tax** deduction in Banner using **Add/Replace**.
 - [ ] Rerun **PHPCALCJ** and the Report
 - [ ] Validate year-to-date totals do not exceed appropriate IRS limits.
