@@ -1,11 +1,14 @@
 # Secure 2.0 High-Wage Earner Catch-Up Contributions
-Ellucian is working on a long-term solution, but here’s our current approach:
+Ellucian is working on a long-term solution. Below I outline our interim approach to prevent high earners from exceeding pre-tax contributions. Your institution will need to adjust it for your setup and needs for it to work. 
 
 ## **Goal**
 Identify high earners whose pre-tax contributions exceed IRS limits. Move excess pre-tax contributions to a Roth deduction.
 
+The report is **not** intended to prevent excess contributions in total, such as Roth plus Pre-tax contributions. I highly recommend using Banner's combined limit rule code setup for that (not required for this report to work). You are welcome to alter the report to watch for excess total contributions if you desire.
+
 ## **Initial Setup**
-Update the report with correct deduction codes in the appropriate CTE (Pre/Post-Tax Main/457b).
+- Update the report with correct deduction codes in the appropriate CTE (Pre/Post-Tax Main/457b).
+- Ensure Other CTEs have needed records (such as the correct values and years in **Limits and Wages**)
 
 ## **Ongoing Setup Recommendation**
 - Annually add records to **Limits and Wages** as announced by the IRS.
@@ -29,9 +32,11 @@ Update the report with correct deduction codes in the appropriate CTE (Pre/Post-
 - [ ] (Optional) Alter deduction setup for future payrolls.
 - [ ] (Optional) Note how to revert at the start of the next year, or setup next year with a future effective date.
 
----
-
 ## **Important Notes**
-If you have employees deemed High Earners based on wages earned outside of Banner, you may need to alter the **High Earner CTE** to include them.
+If you have employees deemed High Earners based on wages earned outside of Banner, you may need28 to alter the **High Earner CTE** to include them.
 
+## To Do (Note to Self)
+Add information about Deduction setup (calc rules, combined limit rule codes, etc.)
+
+## Footnote
 *\* The current query is an early draft; adjustments may follow.*
