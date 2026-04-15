@@ -23,7 +23,7 @@ The report is **not** intended to prevent excess contributions in total, such as
 - (Optional) Add record(s) to the **Special Catch-Up CTE** if you have employees eligible for, and electing to use, special catch-up contributions.
 
 ## **Payroll Checklist**
-- [ ] Confirm high-wage earner status (IRS threshold: \$145,000 prior-year compensation).
+- [ ] Confirm high-wage earner status (IRS threshold: \$150,000 prior-year compensation).
 - [ ] Verify both pre-tax and post-tax deductions are set up.
 - [ ] Run **PHPCALCJ** after each payroll cycle.
 - [ ] Execute the **Secure 2.0 High Earners Exceeding Pretax Allowed SQL report** and review flagged employees.
