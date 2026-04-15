@@ -9,10 +9,10 @@ The report is **not** intended to prevent excess contributions in total, such as
 ## **Initial Setup**
 - Bring the [Secure 2.0 High Earners Exceeding Pretax Allowed SQL report](secure2HighEarnerExceedingPretaxAllowable.sql)\* into your reporting tool. Ideally you'll have someone review the code to understand what it's doing, and make any necessary adjustments.
 - Update the report with correct deduction codes in the appropriate CTE (Pre/Post-Tax Main/457b).
-- Ensure Other CTEs have needed records (such as the correct values and years in **Limits and Wages**)
+- Ensure Other CTEs have needed records (such as **Special Catchup** records and the correct values and years in **Limits and Wages** if **not** using parameters in that CTE)
 
 ## **Ongoing Setup Recommendation**
-- Annually add records to **Limits and Wages** as announced by the IRS.
+- Annually add records to **Limits and Wages** as announced by the IRS if **not** using parameters.
 - Set up both **pre-tax** and **post-tax** deductions for high-wage earners eligible for, and electing, age catch-up contributions at the start of the year (or when elections change).
     - If using contribution limits, apply the **full IRS limit** (including catch-up) combined limit for employees intending to use the age catch-up.
         - Use the same limit for pre-tax and post-tax deductions in a given bucket (Main or 457b).
