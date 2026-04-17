@@ -1,10 +1,26 @@
 # Tips / Notes for 2026 Secure 2.0 Presentation
 
 ## Retirement Administrator Dashboard
+**Setup**
+
+Setup Required for Retirement Administrator Dashboard  
+- [Setup Deduction Groups](#Bulk-Delete/Load-of-Deduction-Group-Assignments) for Retirement Deductions (PTRBDPG)
+- Enable the Dashboard (GUACONF > Employee > Configurations > `ess.benefits.retireAdministrator​LinkAvailable` = 'Y')
+- Assign Users the `RETIREADMIN` role
+
+Additional Helps for setup:  
+- [Documentation](https://resources.elluciancloud.com/r/bundle/banner_empss_acn_configure/page/c_access_bene_retire_admin_page.html)
+- [Communities Post](https://elluciansupport.service-now.com/customer_center?id=community_blog&sys_id=87829e06c32df6d4f5463eaf050131dd)
+- [Webinar](https://event.on24.com/wcc/r/5161320/259B2179F9E2D0F6495622EC8A11DCE0)
+
+**Change in where Roles are Granted**
+
 In June 2025 Banner released a new way to assign Banner Self-Service Roles.
 This used to be done via GUAUSRL, but is now done using GUAWROL.
 
 There is an Ellucian Article [KB000510502 - Steps to configure the new GUAWMNU and GUAWROL SSB9x menu](https://elluciansupport.service-now.com/customer_center?sys_kb_id=0d27c2c69397fe940ff9ff947aba10d0&id=kb_article_view) (with additional KBs listed near the bottom) for migrating to the new setup.
+
+**Extra Steps if still using GUAUSRL**
 
 I recommend moving to this new setup and assigning the role via GUAWROL. If you want to assign the RETIREADMIN role via GUAURSL before you can migrate, you'll need to add the role to the old validation table. (We need this as we have not completed migration.)
 
@@ -26,7 +42,7 @@ WHERE GURVROL_CODE = 'RETIREADMIN';
 ```
 
 ## Bulk Delete/Load of Deduction Group Assignments
-In this section, I provide code that can be used (in conjunction with the [Retirement Grouping spreadsheet](secure2Template_Retirement_Grouping.xlsx)) to bulk (remove and) setup grouping for retirement deductions.
+In this section, I provide code that can be used (in conjunction with the [Retirement Grouping spreadsheet](Retirement_Grouping.xlsx)) to bulk (remove and) setup grouping for retirement deductions.
 
 Optional Backup
 ```sql
@@ -43,7 +59,7 @@ FROM PTRBDSG
 WHERE PTRBDSG_BDPG_CODE = 'RT';
 ```
 
-View
+View Current Grouping / Get Retirement Deductions for Spreadsheet
 ```sql
 /* List Retirement Deduction Codes. Current grouping included if it exists */
 
@@ -59,8 +75,10 @@ LEFT JOIN PTRBDGM ON PTRBDGM_BDCA_CODE = PTRBDCA_CODE
 ;
 ```
 
-### Prepare an excel spreadsheet to map deductions to primary/sub groups.
-Instructions for the [Retirement Grouping spreadsheet](secure2Template_Retirement_Grouping.xlsx)
+### Map Deductions to Groups (Using Excel).
+Deductions can be mapped directly in PTRBDPG. Secondary groups must be made in PTRBDPG before you can assign deductions to the secondary group(s).
+
+Instructions for the [Retirement Grouping spreadsheet](Retirement_Grouping.xlsx)
 1) Update your desired secondary group options on the **Secondary Group Validation List** tab
 2) Paste the results from the query  in the **Group Assignments** tab and copy down the formula in column E:
     ```excel
@@ -68,14 +86,12 @@ Instructions for the [Retirement Grouping spreadsheet](secure2Template_Retiremen
     ```
 3) Copy the SQL Column into the insert statement below
 
-
-
-
 **Delete Existing Grouping**  
-For a clean slate (remove old secondary groups) it's quick to delete the secondary group records (middle section). Deleting a secondary group will remove all deduction associations with that secondary group.
+For a clean slate (remove old secondary groups) it's quick to delete the secondary group records (middle section of PTRBDPG). Deleting a secondary group will remove all deduction associations with that secondary group.
 
+**Secondary Group Association Insert Example**  
+Update Indicators per your institution's needs
 ```sql
--- 
 INSERT INTO PTRBDGM
 ( PTRBDGM_BDCA_CODE
 , PTRBDGM_BDPG_CODE
@@ -142,48 +158,56 @@ where BDCA in (select ptrbdca_code from ptrbdca)
 ;
 ```
 
+## Spreadsheet to Group Data from the Dashboard
+
+I've created a spreadsheet in which you can paste data downloaded from the Retirement Administrator Dashboard.
+You'll need to update values in green cells on the Setup tab. You'll also need to copy formulas (blue cells) down to the last row of data on the Data tab.
+
 ## Query Current Payroll Data - Add to
-Query uses the Retire Admin Dashboard Download layout. This allows you to paste data right into the [Retirement Analysis spreadsheet](secure2Template_Retirement_Dashboard_Analysis.xlsx) (Data tab). This should be pasted under the data from the Retirement Admin Dashboard data as it's missing important data such as prior year FICA which is included in the dashboard. VLOOKUPS will view the first record, which is why the dashboard data should be listed first.
+
+The Retirement Dashboard doesn't include current payroll contributions (not at present).
+
+The following query uses the Retire Admin Dashboard Download layout. This allows you to paste data into the [Retirement Dashboard Analysis spreadsheet](Retirement_Dashboard_Analysis.xlsx) (Data tab). This should be pasted under the data from the Retirement Admin Dashboard data as it's missing important data such as prior year FICA which is included in the dashboard. VLOOKUPS will view the first record, which is why the dashboard data should be listed first.
 
 ```sql
-    SELECT 
-          SPRIDEN_ID
-        , SPRIDEN_FIRST_NAME || ' ' || SPRIDEN_LAST_NAME EE_NAME
-        , TO_NUMBER(COALESCE(TO_CHAR(PHRHIST_POSTING_OVERRIDE_DATE, 'YYYY'), PHRDEDN_YEAR)) - EXTRACT (YEAR FROM SPBPERS_BIRTH_DATE) age
-        , PHRDEDN_BDCA_CODE
-        , ptrbdca_long_desc
-        , NULL BDCL_DESC
-        , SUM(PHRDEDN_EMPLOYEE_AMT) TOTAL_EE_CONTRIBUTIONS
-        , SUM(PHRDEDN_EMPLOYER_AMT) TOTAL_ER_CONTRIBUTIONS
-        , SUM(PHRDEDN_APPLICABLE_GROSS) TOTAL_APPLICABLE_GROSS
-        , NULL CY_FICA
-        , NULL PR_FICA
-    FROM PHRDEDN
-      JOIN PHRHIST 
-        ON PHRHIST_PIDM = PHRDEDN_PIDM 
-          AND PHRHIST_YEAR = PHRDEDN_YEAR 
-          AND PHRHIST_PICT_CODE = PHRDEDN_PICT_CODE 
-          AND PHRHIST_PAYNO = PHRDEDN_PAYNO 
-          AND PHRHIST_SEQ_NO = PHRDEDN_SEQ_NO
-      JOIN SPRIDEN ON SPRIDEN_PIDM = PHRDEDN_PIDM AND SPRIDEN_CHANGE_IND IS NULL
-      JOIN SPBPERS ON SPBPERS_PIDM = PHRDEDN_PIDM
-      JOIN PTRBDCA ON PTRBDCA_CODE = PHRDEDN_BDCA_CODE
-    WHERE PHRDEDN_BDCA_CODE IN 
-      ( SELECT PTRBDGM_BDCA_CODE PTRBDCA_CODE FROM PTRBDGM 
-        WHERE PTRBDGM_BDPG_CODE = 'RT'
-          -- -- Optionally limit to secondary groups you care about
-          -- AND PTRBDGM_BDSG_CODE IN ('C0R','C0T','C5R','C5T') 
-      )
-      -- -- ***** PARAMETER: THIS IS WHERE THE YEAR GETS FILTERED ***** -- --
-      -- Might not need this, but leaving just in case since data isn't grouped by year
-      AND COALESCE(TO_CHAR(PHRHIST_POSTING_OVERRIDE_DATE, 'YYYY'), PHRDEDN_YEAR) = TO_CHAR(:MAIN_EB_CONTRIBUTION_YEAR)
-      -- Limit to payrolls at the PHPCALCJ step
-      AND PHRHIST_DISP = 40
-    GROUP BY 
-          spriden_id
-        , SPRIDEN_FIRST_NAME || ' ' || SPRIDEN_LAST_NAME
-        , TO_NUMBER(COALESCE(TO_CHAR(PHRHIST_POSTING_OVERRIDE_DATE, 'YYYY'), PHRDEDN_YEAR)) - EXTRACT (YEAR FROM SPBPERS_BIRTH_DATE)
-        , PHRDEDN_BDCA_CODE
-        , ptrbdca_long_desc
+SELECT 
+      SPRIDEN_ID
+    , SPRIDEN_FIRST_NAME || ' ' || SPRIDEN_LAST_NAME EE_NAME
+    , TO_NUMBER(COALESCE(TO_CHAR(PHRHIST_POSTING_OVERRIDE_DATE, 'YYYY'), PHRDEDN_YEAR)) - EXTRACT (YEAR FROM SPBPERS_BIRTH_DATE) age
+    , PHRDEDN_BDCA_CODE
+    , ptrbdca_long_desc
+    , NULL BDCL_DESC
+    , SUM(PHRDEDN_EMPLOYEE_AMT) TOTAL_EE_CONTRIBUTIONS
+    , SUM(PHRDEDN_EMPLOYER_AMT) TOTAL_ER_CONTRIBUTIONS
+    , SUM(PHRDEDN_APPLICABLE_GROSS) TOTAL_APPLICABLE_GROSS
+    , NULL CY_FICA
+    , NULL PR_FICA
+FROM PHRDEDN
+  JOIN PHRHIST 
+    ON PHRHIST_PIDM = PHRDEDN_PIDM 
+      AND PHRHIST_YEAR = PHRDEDN_YEAR 
+      AND PHRHIST_PICT_CODE = PHRDEDN_PICT_CODE 
+      AND PHRHIST_PAYNO = PHRDEDN_PAYNO 
+      AND PHRHIST_SEQ_NO = PHRDEDN_SEQ_NO
+  JOIN SPRIDEN ON SPRIDEN_PIDM = PHRDEDN_PIDM AND SPRIDEN_CHANGE_IND IS NULL
+  JOIN SPBPERS ON SPBPERS_PIDM = PHRDEDN_PIDM
+  JOIN PTRBDCA ON PTRBDCA_CODE = PHRDEDN_BDCA_CODE
+WHERE PHRDEDN_BDCA_CODE IN 
+  ( SELECT PTRBDGM_BDCA_CODE PTRBDCA_CODE FROM PTRBDGM 
+    WHERE PTRBDGM_BDPG_CODE = 'RT'
+      -- -- Optionally limit to secondary groups you care about
+      -- AND PTRBDGM_BDSG_CODE IN ('C0R','C0T','C5R','C5T') 
+  )
+  -- -- ***** PARAMETER: THIS IS WHERE THE YEAR GETS FILTERED ***** -- --
+  -- Might not need this, but leaving just in case since data isn't grouped by year
+  AND COALESCE(TO_CHAR(PHRHIST_POSTING_OVERRIDE_DATE, 'YYYY'), PHRDEDN_YEAR) = TO_CHAR(:MAIN_EB_CONTRIBUTION_YEAR)
+  -- Limit to payrolls at the PHPCALCJ step
+  AND PHRHIST_DISP = 40
+GROUP BY 
+      spriden_id
+    , SPRIDEN_FIRST_NAME || ' ' || SPRIDEN_LAST_NAME
+    , TO_NUMBER(COALESCE(TO_CHAR(PHRHIST_POSTING_OVERRIDE_DATE, 'YYYY'), PHRDEDN_YEAR)) - EXTRACT (YEAR FROM SPBPERS_BIRTH_DATE)
+    , PHRDEDN_BDCA_CODE
+    , ptrbdca_long_desc
 ;
 ```
