@@ -7,7 +7,7 @@ Identify HPIs whose pre-tax contributions exceed the IRS Standard Contribution L
 The report is **not** intended to prevent excess contributions in total, such as Roth plus Pre-tax contributions. I highly recommend using Banner's combined limit rule code setup for that (not required for this report to work). You are welcome to alter the report to watch for excess total contributions if you desire.
 
 ## **Initial Setup**
-- Bring the [Secure 2.0 HPI Catch-up Exceeding Pretax Allowed SQL report](HPICatchupExceedingPretaxAllowable.sql)\* into your reporting tool. Ideally you'll have someone review the code to understand what it's doing, and make any necessary adjustments.
+- Bring the [Secure 2.0 HPI Catch-up Exceeding Pretax Allowed SQL report](CatchupExceedsPretaxAllowed.sql)\* into your reporting tool. Ideally you'll have someone review the code to understand what it's doing, and make any necessary adjustments.
 - Update the report with correct deduction codes in the appropriate CTE (Pre/Post-Tax Main/457b).
 - Ensure Other CTEs have needed records (such as **Special Catchup** records and the correct values and years in **Limits and Wages** if **not** using parameters in that CTE)
 
